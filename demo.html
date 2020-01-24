@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="author" content="Steven Cybinski">
+		<meta name="description" content="">
+		<meta name="keywords" content="HTML,CSS,JavaScript,Small,Responsive,History,Overview,Chart">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<title>SpinnerPickerJs - Demo</title>
+        <script src="spinner_picker.js"></script>
+
+        <style>
+            /* Some basic style for this demo 
+             * To prevent overscrolling on mobile use this css:
+             * body { overscroll-behavior: contain; }
+             */
+            body { overscroll-behavior: contain; margin: 0; }
+            h1 { font-size: 24px; margin: 0 0 5px 0; font-weight: bold; }
+            h2 { font-size: 16px; margin: 0 0 5px 0; font-weight: normal; }
+            .demo-sample { float: left; text-align: center; width: 200px; margin: 10px 0 0 10px; padding: 5px 7px 2px 5px; border: 1px solid #333333; box-shadow: 1.5px 1.5px 2.5px 3px #ccc; }
+            .demo-sample canvas { width: 100%; height: 200px; border: solid black 1px; }
+            table, td, tr { border: none; border-collapse: collapse; }
+        </style>
+        <script>
+            function init() {
+                /* Example-1
+                 * Select a number between (including) 0 and 20.
+                 */
+                new SpinnerPicker(
+                    document.getElementById("simple-example"), 
+                    function(index) {
+                        // Check if the index is below zero or above 20 - Return null in this case
+                        if(index < 0 || index > 20) {
+                            return null;
+                        }
+                        return index;
+                    }, { index: 4 }
+                );
+                /* Example-2
+                 * Select a fruit from the array 'selectableFruits'.
+                 */
+                var selectableFruits = ["Apples", "Apricots", "Avocados", "Bananas", "Boysenberries", "Blueberries", "Bing Cherry", "Cherries", "Cantaloupe", "Crab apples", "Clementine", "Cucumbers", "Damson plum", "Pluots", "Dates", "Dewberries", "Dragon Fruit", "Elderberry", "Eggfruit", "Evergreen Huckleberry", "Entawak", "Fig", "Farkleberry", "Finger Lime", "Grapefruit", "Grapes", "Gooseberries", "Guava", "Honeydew melon", "Hackberry", "Honeycrisp Apples", "Plum", "Indonesian Lime", "Imbe", "Indian Fig", "Jackfruit", "Java Apple", "Jambolan", "Kiwi", "Kaffir Lime", "Kumquat", "Lemon", "Longan", "Lychee", "Loquat", "Mango", "Mandarin Orange", "Mulberry", "Melon", "Nectarine", "Navel Orange", "Nashi Pear", "Olive", "Oranges", "Ogeechee Limes", "Oval Kumquat", "Papaya", "Persimmon", "Paw Paw", "Prickly Pear", "Peach", "Pomegranate", "Pineapple", "Quince", "Queen Anne Cherry", "Chupa Chupa", "Rambutan", "Raspberries", "Rose Hips", "Star Fruit", "Strawberries", "Sugar Baby Watermelon", "Tomato", "Tangerine", "Tamarind", "Tart Cherries", "Ugli Fruit", "Uniq Fruit", "Ugni", "Vanilla Bean", "Velvet Pink Banana", "Voavanga", "Watermelon", "Wolfberry", "White Mulberry", "Xigua", "Yellow Passion Fruit", "Yunnan Hackberry", "Yangmei", "Zig Zag Vine fruit", "Zinfandel Grapes", "Zucchini"];
+                new SpinnerPicker(
+                    document.getElementById("fruit-example"), 
+                    function(index) {
+                        // Check if the index is in range of the array - Return null if its not the case
+                        if(index < 0 || index >= selectableFruits.length) {
+                            return null;
+                        }
+                        return selectableFruits[index];
+                    }, { index: 0, selection_color: "orange", font: "Comic Sans MS,Verdana,Helvetica"}
+                );
+                /* Example-3
+                 * Select a color from the array 'selectableColors'.
+                 * A callback is used to set the selected color as font color.
+                 */
+                var selectableColors = ["Navy", "Blue", "Aqua", "Teal", "Olive", "Green", "Lime", "Yellow", "Orange", "Red", "Maroon", "Fuchsia", "Purple", "Silver", "Gray", "Black"],
+                    feedbackElement = document.getElementById("example-3-desc");
+                new SpinnerPicker(
+                    document.getElementById("color-example"), 
+                    function(index) {
+                        if(index < 0 || index >= selectableColors.length) {
+                            return null;
+                        }
+                        return selectableColors[index];
+                    }, 
+                    { index: 0, font_color: "Navy" },
+                    function(index) {
+                        // Check whether the color is already set to prevent a infinity loop
+                        if(this.fontColor != selectableColors[index]) { 
+                            // Get and set the new color
+                            this.fontColor = selectableColors[index];
+                            feedbackElement.innerHTML = "Color selection<br>+ Callback<br>+ Font color (" + selectableColors[index] + ")";
+                            this.updateView();
+                        }
+                    }
+                );
+                /* Date Time Picker Example
+                 * Select a month, day, year, hour and minute
+                 */
+                var todayMonth = new Date().getMonth(), 
+                    todayDay = new Date().getDate(), 
+                    todayYear = new Date().getFullYear(),
+                    todayHours = new Date().getHours(),
+                    todayMinutes = new Date().getMinutes(),
+                    dayTimePicker = null, monthTimePicker = null, yearTimePicker = null;
+                // This function changes the selectable days
+                function updateDaySelection() {
+                    // Check if all picker are instanciated 
+                    if(dayTimePicker != null && monthTimePicker != null && yearTimePicker != null) {
+                        // Get the selected month and year and create a placeholder
+                        var month = monthTimePicker.getValue(),
+                            year = yearTimePicker.getValue();
+                            maxDays = 0;
+                        // Find the days for the month
+                        if(month == 4 || month == 6 || month == 9 || month == 11) {
+                            maxDays = 30;
+                        } else if(month == 2) {
+                            if((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) { // Leap-Year
+                                maxDays = 29;
+                            } else {
+                                maxDays = 28;
+                            }
+                        } else {
+                            maxDays = 31;
+                        }
+                        // Check if currently selected day is bigger than possible - Set it to the maximum in this case
+                        if(dayTimePicker.getValue() == null) {
+                            dayTimePicker.setIndex(maxDays - 1);
+                        } else { // If not just update the view
+                            dayTimePicker.updateView();
+                        }
+                        // Update the value-handler function with the new day range
+                        dayTimePicker.valueHandler = function(index) {
+                            if(index < 0 || index > maxDays - 1) {
+                                return null;
+                            }
+                            return index + 1;
+                        };
+                    }
+                }
+                // Initialize the month time picker
+                monthTimePicker = new SpinnerPicker(
+                    document.getElementById("date-time-month"), 
+                    function(index) {
+                        // Since we have 12 months - the index needs to be increased by one and therefore the range is 0 to 11
+                        if(index < 0 || index > 11) {
+                            return null;
+                        }
+                        return index + 1;
+                    }, { index: todayMonth },
+                    function(e) { updateDaySelection(); }
+                );
+                // Initialize the day time picker
+                dayTimePicker = new SpinnerPicker(
+                    document.getElementById("date-time-day"), 
+                    function(index) {
+                        // Just set a default handler with range 0-30 (Day 1 to Day 31)
+                        if(index < 0 || index > 30) {
+                            return null;
+                        }
+                        return index + 1;
+                    }, { index: todayDay - 1 }
+                );
+                // Initialize the year time picker
+                yearTimePicker = new SpinnerPicker(
+                    document.getElementById("date-time-year"), 
+                    function(index) {
+                        // Simply allow a year selection from now to 20 years in the future
+                        if(index < 0 || index > 20) {
+                            return null;
+                        }
+                        return todayYear + index;
+                    }, { index: 0 },
+                    function(e) { updateDaySelection(); }
+                ); 
+                // Update the day range after initializing all required pickers
+                updateDaySelection();               
+                new SpinnerPicker(
+                    document.getElementById("date-time-hours"), 
+                    function(index) {
+                        // Simply allow a selection from 0-24
+                        if(index < 0 || index > 24) {
+                            return null;
+                        }
+                        // Add a 0 when the hour is 00-9
+                        if(index <= 9) {
+                            return "0" + index;
+                        }
+                        return index;
+                    }, { index: todayHours }
+                );
+                new SpinnerPicker(
+                    document.getElementById("date-time-minutes"), 
+                    function(index) {
+                        // Simply allow a selection from 00-60
+                        if(index < 0 || index > 60) {
+                            return null;
+                        }
+                        // Add a 0 when the hour is 0-9
+                        if(index <= 9) {
+                            return "0" + index;
+                        }
+                        return index;
+                    }, { index: todayMinutes }
+                );
+            }
+        </script>
+    </head>
+    <body onload="init()">
+        <ul style="list-style-type: none;">
+            <li style="font-weight: bold;">Control by:</li>
+            <li>1. Hover and scroll with the mouse wheel or with the mousepad</li>
+            <li>2. Hover and use the arrow-up- or w- and arrow-down- or s-key</li>
+            <li>3. Click on the upper or lower half</li>
+            <li>4. On mobile use the scroll gesture</li>
+        </ul>
+        <div class="demo-sample">
+            <h1>Example-1</h1>
+            <h2>Number input 0-20</h2>
+            <canvas id="simple-example"></canvas>
+        </div>
+        <div class="demo-sample" style="width: 250px;">
+            <h1>Example-2</h1>
+            <h2>Width - Fruit selection<br>+ Colored highlight<br>+ Font (Comic Sans)</h2>
+            <canvas id="fruit-example" style="height: 150px;"></canvas>
+        </div>
+        <div class="demo-sample">
+            <h1>Example-3</h1>
+            <h2 id="example-3-desc">Color selection<br>+ Callback<br>+ Font color (Navy)</h2>
+            <canvas id="color-example"></canvas>
+        </div>
+        <table class="demo-sample" style="width:calc(100% - 40px); max-width: 600px; padding:0;">
+            <tr>
+                <th width="20%">Month</th>
+                <th width="20%">Day</th>
+                <th width="20%">Year(+20 Years)</th>
+                <th width="20%">Hours</th>
+                <th width="20%">Minutes</th>
+            </tr>
+            <tr>
+                <td><canvas id="date-time-month"></canvas></td>
+                <td><canvas id="date-time-day"></canvas></td>
+                <td><canvas id="date-time-year"></canvas></td>
+                <td><canvas id="date-time-hours"></canvas></td>
+                <td><canvas id="date-time-minutes"></canvas></td>
+            </tr>
+        </table>
+    </body>
+</html>
