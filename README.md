@@ -35,7 +35,7 @@ body {
 </script>
 ```
 ## Function Overview
-The `SpinnerPicker` class contains the following constructor and functtions.
+The `SpinnerPicker` class contains the following constructor and functions.
 # Configuration And Constructor
 ```js
 /*
@@ -74,7 +74,7 @@ var onchanged = function(index) {};
  * config: JSON-Object that contains configuration
  * onchanged: Function with index parameter as callback (default: null)
  */
-constructor(canvas, valueHandler, config, onchanged)
+SpinnerPicker(canvas, valueHandler, config, onchanged);
 ```
 # Remove
 ```js
